@@ -6,10 +6,13 @@ import {
   AudioPlayerStatus,
   VoiceConnectionStatus,
   entersState,
+  StreamType,
 } from "@discordjs/voice";
 import path from "path";
 import fs from "fs";
-import("dotenv/config");
+import "dotenv/config";
+import ffmpegPath from "ffmpeg-static";
+import { spawn, type ChildProcessWithoutNullStreams } from "child_process";
 
 const client = new Client({
   intents: [
@@ -90,9 +93,10 @@ function playAdlib(guildId: string) {
   console.log(`🎤 [${guildId}] Playing: ${chosen}`);
 
   try {
-    const ffmpegPath = require("ffmpeg-static");
-    const { spawn } = require("child_process");
-    const ffmpeg = spawn(ffmpegPath, [
+    if (!ffmpegPath) {
+      throw new Error("ffmpeg-static path not found");
+    }
+    const ffmpeg: ChildProcessWithoutNullStreams = spawn(ffmpegPath as unknown as string, [
       "-i",
       filePath,
       "-f",
@@ -105,7 +109,7 @@ function playAdlib(guildId: string) {
     ]);
 
     const resource = createAudioResource(ffmpeg.stdout, {
-      inputType: require("@discordjs/voice").StreamType.Raw,
+      inputType: StreamType.Raw,
       inlineVolume: true,
     });
 
