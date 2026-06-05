@@ -1,108 +1,75 @@
-# Getting Started app for Discord
+# 🎤 MJ Adlib Bot
 
-This project contains a basic rock-paper-scissors-style Discord app written in JavaScript, built for the [getting started guide](https://discord.com/developers/docs/getting-started).
+A Discord bot that joins a voice channel and randomly plays Michael Jackson adlibs on a random timer.
 
-![Demo of app](https://github.com/discord/discord-example-app/raw/main/assets/getting-started-demo.gif?raw=true)
+## Commands
 
-## Project structure
-Below is a basic overview of the project structure:
+| Command  | Description |
+|----------|-------------|
+| `!join`  | Bot joins your current voice channel and starts playing random adlibs |
+| `!leave` | Bot leaves the voice channel |
+| `!mj`    | Manually trigger a random adlib immediately |
+| `!adlibs`| List all loaded adlib files |
 
-```
-├── examples    -> short, feature-specific sample apps
-│   ├── app.js  -> finished app.js code
-│   ├── button.js
-│   ├── command.js
-│   ├── modal.js
-│   ├── selectMenu.js
-├── .env.sample -> sample .env file
-├── app.js      -> main entrypoint for app
-├── commands.js -> slash command payloads + helpers
-├── game.js     -> logic specific to RPS
-├── utils.js    -> utility functions and enums
-├── package.json
-├── README.md
-└── .gitignore
-```
+## Setup
 
-## Running app locally
+### 1. Prerequisites
+- **Node.js v18+** — https://nodejs.org
+- **FFmpeg** — handled automatically via `ffmpeg-static`
 
-Before you start, you'll need to install [NodeJS](https://nodejs.org/en/download/) and [create a Discord app](https://discord.com/developers/applications) with the proper permissions:
-- `applications.commands`
-- `bot` (with Send Messages enabled)
+### 2. Create your Discord Bot
+1. Go to https://discord.com/developers/applications
+2. Click **New Application**, give it a name
+3. Go to **Bot** tab → click **Add Bot**
+4. Under **Privileged Gateway Intents**, enable:
+   - **Server Members Intent**
+   - **Message Content Intent**
+5. Copy your bot **Token** (keep this secret!)
+6. Go to **OAuth2 → URL Generator**:
+   - Scopes: `bot`
+   - Bot Permissions: `Connect`, `Speak`, `Send Messages`, `Read Message History`
+7. Use the generated URL to invite the bot to your server
 
-
-Configuring the app is covered in detail in the [getting started guide](https://discord.com/developers/docs/getting-started).
-
-### Setup project
-
-First clone the project:
-```
-git clone https://github.com/discord/discord-example-app.git
-```
-
-Then navigate to its directory and install dependencies:
-```
-cd discord-example-app
+### 3. Install dependencies
+```bash
 npm install
 ```
-### Get app credentials
 
-Fetch the credentials from your app's settings and add them to a `.env` file (see `.env.sample` for an example). You'll need your app ID (`APP_ID`), bot token (`DISCORD_TOKEN`), and public key (`PUBLIC_KEY`).
-
-Fetching credentials is covered in detail in the [getting started guide](https://discord.com/developers/docs/getting-started).
-
-> 🔑 Environment variables can be added to the `.env` file in Glitch or when developing locally, and in the Secrets tab in Replit (the lock icon on the left).
-
-### Install slash commands
-
-The commands for the example app are set up in `commands.js`. All of the commands in the `ALL_COMMANDS` array at the bottom of `commands.js` will be installed when you run the `register` command configured in `package.json`:
-
+### 4. Configure the bot
+```bash
+cp .env.example .env
 ```
-npm run register
+Edit `.env` and paste your bot token:
+```
+DISCORD_TOKEN=your_actual_token_here
 ```
 
-### Run the app
-
-After your credentials are added, go ahead and run the app:
-
+### 5. Add your adlib audio files
+Create an `adlibs/` folder in the project root and drop in your audio files:
 ```
-node app.js
+adlibs/
+  hee-hee.mp3
+  shamone.mp3
+  ow.mp3
+  annie-are-you-ok.mp3
+  ...
 ```
+Supported formats: `.mp3`, `.ogg`, `.wav`, `.flac`
 
-> ⚙️ A package [like `nodemon`](https://github.com/remy/nodemon), which watches for local changes and restarts your app, may be helpful while locally developing.
-
-If you aren't following the [getting started guide](https://discord.com/developers/docs/getting-started), you can move the contents of `examples/app.js` (the finished `app.js` file) to the top-level `app.js`.
-
-### Set up interactivity
-
-The project needs a public endpoint where Discord can send requests. To develop and test locally, you can use something like [`ngrok`](https://ngrok.com/) to tunnel HTTP traffic.
-
-Install ngrok if you haven't already, then start listening on port `3000`:
-
-```
-ngrok http 3000
+### 6. Run the bot
+```bash
+npm start
 ```
 
-You should see your connection open:
-
-```
-Tunnel Status                 online
-Version                       2.0/2.0
-Web Interface                 http://127.0.0.1:4040
-Forwarding                    https://1234-someurl.ngrok.io -> localhost:3000
-
-Connections                  ttl     opn     rt1     rt5     p50     p90
-                              0       0       0.00    0.00    0.00    0.00
+## Timing
+By default the bot plays an adlib every **30 seconds to 5 minutes** (random). You can change this in `index.js`:
+```js
+const MIN_DELAY_MS = 30_000;   // 30 seconds
+const MAX_DELAY_MS = 300_000;  // 5 minutes
 ```
 
-Copy the forwarding address that starts with `https`, in this case `https://1234-someurl.ngrok.io`, then go to your [app's settings](https://discord.com/developers/applications).
+## Troubleshooting
 
-On the **General Information** tab, there will be an **Interactions Endpoint URL**. Paste your ngrok address there, and append `/interactions` to it (`https://1234-someurl.ngrok.io/interactions` in the example).
-
-Click **Save Changes**, and your app should be ready to run 🚀
-
-## Other resources
-- Read **[the documentation](https://discord.com/developers/docs/intro)** for in-depth information about API features.
-- Browse the `examples/` folder in this project for smaller, feature-specific code examples
-- Join the **[Discord Developers server](https://discord.gg/discord-developers)** to ask questions about the API, attend events hosted by the Discord API team, and interact with other devs.
-- Check out **[community resources](https://discord.com/developers/docs/topics/community-resources#community-resources)** for language-specific tools maintained by community members.
+- **"No adlib files found"** — Make sure your `adlibs/` folder exists and has audio files in it
+- **Bot joins but no audio** — Check that the bot has `Speak` permission in the voice channel
+- **`sodium-native` install error** — Try `npm install --build-from-source` or install build tools (`npm install -g windows-build-tools` on Windows)
