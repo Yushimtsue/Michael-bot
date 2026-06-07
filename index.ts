@@ -28,8 +28,8 @@ const client = new Client({
 const PREFIX = "!";
 
 // Min/max delay (in ms) between random adlib plays
-const MIN_DELAY_MS = 30_000; // 30 seconds
-const MAX_DELAY_MS = 300_000; // 5 minutes
+const MIN_DELAY_MS = 300_000; // 5 minutes
+const MAX_DELAY_MS = 600_000; // 10 minutes
 
 // Put your .mp3/.ogg adlib files in the ./adlibs/ folder
 const currentDir = import.meta.dirname;
